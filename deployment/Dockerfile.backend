@@ -1,0 +1,57 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Dockerfile.backend — Backend API + Agent Libraries
+# ═══════════════════════════════════════════════════════════════════════════
+# Bundles: Chatbox_mcp/backend + svc-agent-{schedule,invoice,workorder,purchase-order}
+# into a single container with a shared virtualenv (matching prod-setup/deploy.sh)
+# ═══════════════════════════════════════════════════════════════════════════
+
+FROM python:3.11-slim AS base
+
+# ── System dependencies ──────────────────────────────────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# ── Install Python dependencies (cached layer) ──────────────────────────
+# Backend requirements first (heaviest)
+COPY Chatbox_mcp/backend/requirements.txt /tmp/backend-requirements.txt
+RUN pip install --no-cache-dir -r /tmp/backend-requirements.txt
+
+# Agent requirements (lighter — most deps overlap with backend)
+COPY svc-agent-invoice/requirements.txt /tmp/agent-invoice-requirements.txt
+COPY svc-agent-purchase-order/requirements.txt /tmp/agent-po-requirements.txt
+COPY svc-agent-schedule/requirements.txt /tmp/agent-schedule-requirements.txt
+COPY svc-agent-workorder/requirements.txt /tmp/agent-workorder-requirements.txt
+
+RUN pip install --no-cache-dir \
+    -r /tmp/agent-invoice-requirements.txt \
+    -r /tmp/agent-po-requirements.txt \
+    -r /tmp/agent-schedule-requirements.txt \
+    -r /tmp/agent-workorder-requirements.txt
+
+# ── Copy application source ─────────────────────────────────────────────
+# Backend source
+COPY Chatbox_mcp/backend/ /app/backend/
+
+# Agent source directories (backend imports them at runtime)
+COPY svc-agent-invoice/src/ /app/svc-agent-invoice/src/
+COPY svc-agent-purchase-order/src/ /app/svc-agent-purchase-order/src/
+COPY svc-agent-schedule/src/ /app/svc-agent-schedule/src/
+COPY svc-agent-workorder/src/ /app/svc-agent-workorder/src/
+
+# MCP registry config (Docker-internal URLs)
+COPY deployment/mcp-registry.yaml /app/backend/mcp-registry.yaml
+
+# ── Create log directory ─────────────────────────────────────────────────
+RUN mkdir -p /app/backend/logs
+
+# ── Runtime ──────────────────────────────────────────────────────────────
+EXPOSE 8001
+
+WORKDIR /app/backend
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "1"]

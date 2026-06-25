@@ -1,0 +1,100 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Optificial.AI — Production Docker Compose
+# ═══════════════════════════════════════════════════════════════════════════
+# Usage:
+#   docker compose up -d --build        # Build & start all services
+#   docker compose logs -f backend      # Tail backend logs
+#   docker compose down                 # Stop all services
+#   docker compose down -v              # Stop + delete database volume
+# ═══════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────
+  # PostgreSQL 16 — Persistent data store
+  # ─────────────────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: optificial-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: optificial
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-optificial_prod_2026}
+      POSTGRES_DB: optificial
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"          # Only accessible from localhost
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U optificial -d optificial"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - optificial-net
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Backend — FastAPI + All Agent Libraries (schedule, invoice, workorder, PO)
+  # ─────────────────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.backend
+    container_name: optificial-backend
+    restart: always
+    env_file:
+      - backend.env
+    ports:
+      - "127.0.0.1:8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - backend-logs:/app/backend/logs
+    networks:
+      - optificial-net
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Extractor — Document extraction service (PDF, DOCX, XLSX, OCR)
+  # ─────────────────────────────────────────────────────────────────────────
+  extractor:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.extractor
+    container_name: optificial-extractor
+    restart: always
+    env_file:
+      - extractor.env
+    ports:
+      - "127.0.0.1:8010:8010"
+    networks:
+      - optificial-net
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Simpro MCP Server — MCP protocol bridge to Simpro ERP
+  # ─────────────────────────────────────────────────────────────────────────
+  simpro:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.simpro
+    container_name: optificial-simpro
+    restart: always
+    env_file:
+      - simpro.env
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      - optificial-net
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Volumes & Networks
+# ═══════════════════════════════════════════════════════════════════════════
+volumes:
+  pgdata:
+    driver: local
+  backend-logs:
+    driver: local
+
+networks:
+  optificial-net:
+    driver: bridge

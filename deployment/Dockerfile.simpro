@@ -1,0 +1,30 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Dockerfile.simpro — Simpro MCP Server
+# ═══════════════════════════════════════════════════════════════════════════
+# MCP protocol bridge to Simpro ERP (FastAPI + SSE)
+# ═══════════════════════════════════════════════════════════════════════════
+
+FROM python:3.11-slim AS base
+
+# ── System dependencies ──────────────────────────────────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# ── Install Python dependencies ─────────────────────────────────────────
+COPY mcp-simpro-server/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+# ── Copy application source ─────────────────────────────────────────────
+COPY mcp-simpro-server/src/ /app/src/
+COPY mcp-simpro-server/config/ /app/config/
+
+# ── Create log directory ─────────────────────────────────────────────────
+RUN mkdir -p /app/logs
+
+# ── Runtime ──────────────────────────────────────────────────────────────
+EXPOSE 8000
+
+CMD ["python", "src/main.py"]

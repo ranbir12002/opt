@@ -1,0 +1,13 @@
+.env
+tokens.json
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+logs/
+*.log
+.mypy_cache/
+.pytest_cache/
+dist/
+*.egg-info/

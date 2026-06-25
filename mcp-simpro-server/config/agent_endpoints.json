@@ -1,0 +1,20 @@
+{
+  "invoice_agent": {
+    "create_invoice": "/api/create-invoice",
+    "health": "/health",
+    "timeout": 30,
+    "retries": 3
+  },
+  "workorder_agent": {
+    "create_workorder": "/api/create-workorder",
+    "health": "/health",
+    "timeout": 30,
+    "retries": 3
+  },
+  "extractor": {
+    "extract_document": "/api/extract",
+    "health": "/health",
+    "timeout": 60,
+    "retries": 2
+  }
+}

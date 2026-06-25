@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: optificial-dev-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: optificial
+      POSTGRES_PASSWORD: optificial_dev_2026
+      POSTGRES_DB: optificial_dev
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../dev-database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U optificial -d optificial_dev" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  superadmin-frontend:
+    image: node:20-alpine
+    container_name: optificial-superadmin
+    working_dir: /app
+    volumes:
+      - ../superadmin-frontend:/app
+    env_file:
+      - ../superadmin-frontend/.env
+    command: sh -c "npm install && npm run build && npm run preview -- --host"
+    ports:
+      - "5174:5174"
+    depends_on:
+      chatbox-backend:
+        condition: service_started
+
+  chatbox-frontend:
+    image: node:20-alpine
+    container_name: optificial-chatbox-frontend
+    working_dir: /app
+    volumes:
+      - ../Chatbox_mcp/frontend:/app
+    env_file:
+      - ../Chatbox_mcp/frontend/.env
+    command: sh -c "npm install && npm run build && npm run preview -- --host"
+    ports:
+      - "4173:4173"
+    depends_on:
+      chatbox-backend:
+        condition: service_started
+
+  chatbox-backend:
+    image: python:3.11-slim
+    container_name: optificial-chatbox-backend
+    # working_dir must match real path depth so agents/xxx_proxy.py
+    # can resolve repo_root = _here.parents[3] -> /repo
+    working_dir: /repo/Chatbox_mcp/backend
+    volumes:
+      - ../Chatbox_mcp/backend:/repo/Chatbox_mcp/backend
+      # .env lives at Chatbox_mcp/.env — backend loads it via parent.parent / '.env'
+      - ../Chatbox_mcp/.env:/repo/Chatbox_mcp/.env
+      # Agent repos as siblings under /repo (same layout as local dev)
+      - ../svc-agent-invoice:/repo/svc-agent-invoice
+      - ../svc-agent-purchase-order:/repo/svc-agent-purchase-order
+      - ../svc-agent-schedule:/repo/svc-agent-schedule
+      - ../svc-agent-workorder:/repo/svc-agent-workorder
+    environment:
+      - DATABASE_URL=postgresql://optificial:optificial_dev_2026@postgres:5432/optificial_dev
+      - MCP_SERVER_URL=http://mcp-simpro-server:8000
+      - EXTRACTOR_URL=http://svc-extractor:8010/extract
+    command: sh -c "pip install -r requirements.txt && pip install -r /repo/svc-agent-invoice/requirements.txt && pip install -r /repo/svc-agent-purchase-order/requirements.txt && pip install -r /repo/svc-agent-schedule/requirements.txt && pip install -r /repo/svc-agent-workorder/requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8001"
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mcp-simpro-server:
+        condition: service_started
+      svc-extractor:
+        condition: service_started
+
+  mcp-simpro-server:
+    image: python:3.11-slim
+    container_name: optificial-simpro-server
+    working_dir: /app
+    volumes:
+      - ../mcp-simpro-server:/app
+    env_file:
+      - ../mcp-simpro-server/.env
+    command: sh -c "pip install -r requirements.txt && python src/main.py"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # mcp-myob-server:
+  #   image: python:3.11-slim
+  #   container_name: optificial-myob-server
+  #   working_dir: /app
+  #   volumes:
+  #     - ../mcp-myob-server:/app
+  #   command: sh -c "pip install -r requirements.txt && python src/main.py"
+  #   ports:
+  #     - "8002:8002"  # Adjust if the default port is different
+
+  svc-extractor:
+    image: python:3.11-slim
+    container_name: optificial-svc-extractor
+    working_dir: /app
+    volumes:
+      - ../svc-extractor:/app
+    command: sh -c "pip install -r requirements.txt && uvicorn src.main:app --host 0.0.0.0 --port 8010"
+    ports:
+      - "8010:8010"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+    driver: local

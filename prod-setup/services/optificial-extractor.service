@@ -1,0 +1,14 @@
+[Unit]
+Description=Optificial Extractor Service
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/optificial/svc-extractor
+EnvironmentFile=/etc/optificial/backend.env
+ExecStart=/opt/optificial/venv-extractor/bin/uvicorn src.main:app --host 127.0.0.1 --port 8010
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

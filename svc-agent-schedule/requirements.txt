@@ -1,0 +1,11 @@
+# svc-agent-schedule requirements
+# Python 3.9+
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Date parsing
+python-dateutil>=2.8.0
+
+# Fuzzy string matching
+rapidfuzz>=3.0.0

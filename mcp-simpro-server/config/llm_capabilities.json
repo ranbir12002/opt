@@ -1,0 +1,56 @@
+{
+  "claude-sonnet-4-20250514": {
+    "strategy": "llm_native",
+    "max_tokens": 200000,
+    "supports_streaming": true,
+    "description": "Claude Sonnet 4 - Excellent orchestration"
+  },
+  "claude-3-opus-20240229": {
+    "strategy": "llm_native",
+    "max_tokens": 200000,
+    "supports_streaming": true,
+    "description": "Claude 3 Opus - Excellent orchestration"
+  },
+  "claude-3-sonnet-20240229": {
+    "strategy": "llm_native",
+    "max_tokens": 200000,
+    "supports_streaming": true,
+    "description": "Claude 3 Sonnet - Excellent orchestration"
+  },
+  "gpt-4.1": {
+    "strategy": "llm_native",
+    "max_tokens": 128000,
+    "supports_streaming": true,
+    "description": "GPT-4.1 - Good orchestration"
+  },
+  "gpt-4-turbo": {
+    "strategy": "llm_native",
+    "max_tokens": 128000,
+    "supports_streaming": true,
+    "description": "GPT-4 Turbo - Good orchestration"
+  },
+  "gpt-4-turbo-preview": {
+    "strategy": "llm_native",
+    "max_tokens": 128000,
+    "supports_streaming": true,
+    "description": "GPT-4 Turbo Preview - Good orchestration"
+  },
+  "gpt-4o": {
+    "strategy": "llm_native",
+    "max_tokens": 128000,
+    "supports_streaming": true,
+    "description": "GPT-4o - Good orchestration"
+  },
+  "gpt-3.5-turbo": {
+    "strategy": "assisted",
+    "max_tokens": 16000,
+    "supports_streaming": true,
+    "description": "GPT-3.5 Turbo - Needs assistance for complex orchestration"
+  },
+  "gpt-4.1-mini": {
+    "strategy": "assisted",
+    "max_tokens": 16000,
+    "supports_streaming": true,
+    "description": "GPT-4.1 Mini - Needs assistance for complex orchestration"
+  }
+}

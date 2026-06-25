@@ -1,0 +1,8 @@
+Collecting rapidfuzz
+  Using cached rapidfuzz-3.14.3-cp311-cp311-win_amd64.whl.metadata (12 kB)
+Using cached rapidfuzz-3.14.3-cp311-cp311-win_amd64.whl (1.5 MB)
+Installing collected packages: rapidfuzz
+Successfully installed rapidfuzz-3.14.3
+
+[notice] A new release of pip is available: 24.0 -> 26.0.1
+[notice] To update, run: C:\Users\Remote Tarun\OneDrive - Remote Teams\Desktop\optificial\chatbox_mcp\backend\venv\Scripts\python.exe -m pip install --upgrade pip

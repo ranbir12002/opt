@@ -1,0 +1,9 @@
+# Production MCP Server Registry Configuration
+mcp_servers:
+  simpro:
+    title: "Simpro MCP Server"
+    responsibility: "Provides tools to execute CRUD actions against Simpro ERP for job scheduling, work orders, invoicing, and purchase order tracking."
+    enabled: true
+    url: "http://localhost:8000"
+    health_endpoint: "/health"
+    version: "2.0.0"

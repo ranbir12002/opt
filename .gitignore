@@ -1,0 +1,81 @@
+nul
+# ===== Environment & Secrets =====
+.env
+.env.*
+*.key
+*.pem
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.Python
+
+# ===== Virtual Environments =====
+venv/
+.venv/
+env/
+ENV/
+
+# ===== Node =====
+node_modules/
+
+# ===== IDE & Editor =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== OS Files =====
+.DS_Store
+Thumbs.db
+desktop.ini
+**/desktop.ini
+_ul
+_ul-Remote-Teams_Ta
+~$*
+_ul-Remote-Teams_Ta-2
+_ul-Remote-Teams_Ta-3
+_ul-Remote-Teams_Ta-4
+# ===== Documents (not code) =====
+LLM_data_security_guide.docx
+Optificial_Pitch.pptx
+run procedure.docx
+
+# ===== Logs & Cache =====
+*.log
+logs/
+.cache/
+.pytest_cache/
+.mypy_cache/
+*.tmp
+
+# ===== Database =====
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== Data files =====
+Invoices.xlsx
+
+# ===== Claude Code =====
+.claude/
+.claudeignore
+# Temporary generated files
+Chatbox_mcp/backend/static/temp/
+intern/
+Scott video.mp4
+Call Around - Past - Bookings.xlsx
+docs/
+plans/
+Chatbox_mcp/Security_TESTS.md
+Resume/
+agent-coordination/
+README.md
+website/

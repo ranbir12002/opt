@@ -1,0 +1,38 @@
+# ===================================================================
+# Dev Database — Docker Compose for PostgreSQL
+# ===================================================================
+# Usage:
+#   cd dev-database
+#   docker compose up -d
+#
+# Connection string (add to Chatbox_mcp/.env):
+#   DATABASE_URL=postgresql://optificial:optificial_dev_2026@localhost:5432/optificial_dev
+#
+# To reset the database:
+#   docker compose down -v
+#   docker compose up -d
+# ===================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: optificial-dev-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: optificial
+      POSTGRES_PASSWORD: optificial_dev_2026
+      POSTGRES_DB: optificial_dev
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U optificial -d optificial_dev"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
+    driver: local

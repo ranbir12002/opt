@@ -1,0 +1,14 @@
+[Unit]
+Description=Optificial Simpro MCP Server
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/optificial/mcp-simpro-server
+EnvironmentFile=/etc/optificial/backend.env
+ExecStart=/opt/optificial/venv-simpro/bin/python src/main.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

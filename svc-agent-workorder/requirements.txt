@@ -1,0 +1,7 @@
+# svc-agent-workorder requirements
+
+# SOP document reading
+python-docx
+
+# Fuzzy string matching
+rapidfuzz>=3.0.0
